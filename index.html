@@ -1,279 +1,989 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BARVIKHA TON Mini App</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BARVIKHA TON Casino</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
-      color:#fff; min-height:100vh; overflow-x:hidden;
-    }
-    .header{ text-align:center; padding:20px 15px; background:rgba(255,255,255,.05); border-radius:0 0 20px 20px; backdrop-filter:blur(10px); margin-bottom:20px; }
-    .balance{ font-size:22px; font-weight:bold; color:#ffa500; margin-top:8px; }
-    .tabs{ display:flex; justify-content:space-around; margin-bottom:15px; padding:0 10px; }
-    .tab{ flex:1; text-align:center; padding:10px; margin:0 5px; border-radius:999px; background:rgba(255,255,255,.05); cursor:pointer; font-size:14px; }
-    .tab.active{ background:linear-gradient(145deg,#ff6b35,#ffa500); }
-    .screen{ display:none; padding:0 15px 20px; max-width:900px; margin:0 auto; }
-    .screen.active{ display:block; }
-    .mode-card{ background:linear-gradient(145deg,rgba(255,107,53,.25),rgba(31,48,68,.5)); border:2px solid #ff6b35; border-radius:20px; padding:20px; margin-bottom:15px; cursor:pointer; }
-    .mode-card:active{ transform:scale(.98); }
-    .mode-header{ display:flex; align-items:center; gap:12px; margin-bottom:8px; }
-    .mode-icon{ font-size:40px; }
-    .mode-title{ font-size:20px; font-weight:bold; text-transform:uppercase; }
-    .mode-sub{ font-size:12px; opacity:.8; }
-    .mode-desc{ font-size:13px; opacity:.9; margin-top:6px; }
-    .mode-footer{ display:flex; justify-content:space-between; margin-top:10px; font-size:12px; opacity:.85; flex-wrap:wrap; gap:6px; }
-    .pill{ padding:4px 10px; border-radius:999px; background:rgba(0,0,0,.3); }
-    .btn-main{ width:100%; margin-top:14px; padding:14px; border-radius:12px; border:none; background:linear-gradient(145deg,#ff6b35,#ffa500); color:#fff; font-weight:bold; font-size:15px; cursor:pointer; }
-    .small{ font-size:11px; opacity:.7; margin-top:8px; text-align:center; }
-    .toast{ position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:rgba(255,107,53,.95); color:#fff; padding:12px 24px; border-radius:999px; font-size:14px; font-weight:bold; display:none; z-index:9999; }
-    .toast.show{ display:block; animation:fadeInOut 2.5s ease forwards; }
-    @keyframes fadeInOut{ 0%{opacity:0;} 15%{opacity:1;} 75%{opacity:1;} 100%{opacity:0;} }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff;min-height:100vh;overflow-x:hidden;}
+
+    /* HEADER */
+    .header{text-align:center;padding:16px;background:rgba(255,255,255,.05);border-radius:0 0 20px 20px;margin-bottom:16px;}
+    .header h2{font-size:18px;}
+    .balance{font-size:20px;font-weight:bold;color:#ffa500;margin-top:6px;}
+
+    /* TABS */
+    .tabs{display:flex;gap:8px;padding:0 12px;margin-bottom:14px;}
+    .tab{flex:1;text-align:center;padding:9px;border-radius:999px;background:rgba(255,255,255,.07);cursor:pointer;font-size:13px;transition:.2s;}
+    .tab.active{background:linear-gradient(145deg,#ff6b35,#ffa500);font-weight:bold;}
+
+    /* SCREENS */
+    .screen{display:none;padding:0 12px 80px;}
+    .screen.active{display:block;}
+
+    /* MENU CARDS */
+    .mode-card{background:linear-gradient(145deg,rgba(255,107,53,.2),rgba(31,48,68,.6));border:2px solid #ff6b35;border-radius:18px;padding:18px;margin-bottom:12px;cursor:pointer;transition:.2s;}
+    .mode-card:active{transform:scale(.97);}
+    .mode-header{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+    .mode-icon{font-size:36px;}
+    .mode-title{font-size:18px;font-weight:bold;text-transform:uppercase;}
+    .mode-sub{font-size:11px;opacity:.8;}
+    .mode-desc{font-size:13px;opacity:.85;}
+    .mode-footer{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+    .pill{padding:3px 10px;border-radius:999px;background:rgba(0,0,0,.35);font-size:11px;}
+    .btn-main{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:none;background:linear-gradient(145deg,#ff6b35,#ffa500);color:#fff;font-weight:bold;font-size:15px;cursor:pointer;}
+    .small{font-size:11px;opacity:.6;margin-top:6px;text-align:center;}
+
+    /* GAME SCREEN */
+    .game-wrap{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#0f0c29,#1a1a3e);z-index:100;overflow-y:auto;padding-bottom:30px;}
+    .game-wrap.open{display:block;}
+    .game-header{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,.05);border-radius:0 0 16px 16px;margin-bottom:20px;}
+    .back-btn{background:rgba(255,255,255,.1);border:none;color:#fff;font-size:20px;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .game-title{font-size:18px;font-weight:bold;}
+    .game-bal{margin-left:auto;color:#ffa500;font-weight:bold;font-size:15px;}
+
+    /* СЛОТИ */
+    .slots-wrap{padding:0 16px;}
+    .reels{display:flex;gap:8px;justify-content:center;margin-bottom:20px;}
+    .reel{width:80px;height:100px;background:rgba(255,255,255,.08);border:2px solid #ff6b35;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:44px;transition:.3s;}
+    .reel.spin{animation:reelSpin .6s ease;}
+    @keyframes reelSpin{0%{transform:translateY(-20px);opacity:0;}50%{transform:translateY(10px);}100%{transform:translateY(0);opacity:1;}}
+    .slots-result{text-align:center;min-height:32px;font-size:18px;font-weight:bold;margin-bottom:14px;}
+    .win{color:#4cff72;} .lose{color:#ff4c4c;}
+
+    /* МАЙНИ */
+    .mines-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;}
+    .mine-cell{aspect-ratio:1;background:rgba(255,255,255,.1);border:2px solid rgba(255,107,53,.4);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;transition:.2s;}
+    .mine-cell:active{transform:scale(.93);}
+    .mine-cell.safe{background:rgba(76,255,114,.15);border-color:#4cff72;}
+    .mine-cell.boom{background:rgba(255,76,76,.25);border-color:#ff4c4c;}
+    .mine-cell.revealed{pointer-events:none;}
+    .mines-info{display:flex;justify-content:space-between;margin-bottom:14px;font-size:14px;}
+    .mult-badge{background:rgba(255,165,0,.2);border:1px solid #ffa500;border-radius:8px;padding:4px 12px;color:#ffa500;font-weight:bold;}
+
+    /* КОЛЕСО */
+    .wheel-wrap{display:flex;flex-direction:column;align-items:center;padding:0 16px;}
+    .canvas-wrap{position:relative;width:280px;height:280px;margin-bottom:14px;}
+    #wheelCanvas{border-radius:50%;box-shadow:0 0 30px rgba(255,107,53,.4);}
+    .wheel-arrow{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
+    .wheel-result{font-size:20px;font-weight:bold;min-height:28px;margin-bottom:14px;}
+
+    /* АРЕНА */
+    .arena-wrap{padding:0 16px;}
+    .fighters{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+    .fighter{text-align:center;flex:1;}
+    .fighter-icon{font-size:56px;margin-bottom:6px;}
+    .fighter-name{font-size:13px;font-weight:bold;opacity:.9;}
+    .hp-bar-wrap{background:rgba(255,255,255,.1);border-radius:999px;height:10px;margin-top:6px;overflow:hidden;}
+    .hp-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,#4cff72,#00c853);transition:width .5s;}
+    .hp-bar.enemy{background:linear-gradient(90deg,#ff6b35,#ff0000);}
+    .vs{font-size:28px;font-weight:bold;color:#ffa500;}
+    .arena-log{background:rgba(255,255,255,.05);border-radius:12px;padding:12px;min-height:100px;max-height:150px;overflow-y:auto;margin-bottom:14px;font-size:13px;line-height:1.8;}
+    .log-hit{color:#ff9800;} .log-win{color:#4cff72;} .log-lose{color:#ff4c4c;}
+
+    /* РУЛЕТКА PVP */
+    .roul-wrap{padding:0 16px;}
+    .roul-track{display:flex;gap:6px;overflow-x:auto;padding:10px 0;margin-bottom:14px;scrollbar-width:none;}
+    .roul-track::-webkit-scrollbar{display:none;}
+    .roul-item{min-width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;flex-shrink:0;border:2px solid transparent;transition:.3s;}
+    .roul-item.red{background:rgba(255,76,76,.3);}
+    .roul-item.black{background:rgba(50,50,80,.5);}
+    .roul-item.green{background:rgba(76,255,114,.3);}
+    .roul-item.active{border-color:#fff;transform:scale(1.15);box-shadow:0 0 12px rgba(255,255,255,.4);}
+    .roul-pointer{text-align:center;font-size:24px;margin-bottom:8px;}
+    .roul-bets{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;}
+    .roul-bet-btn{padding:10px 18px;border-radius:10px;border:2px solid;background:transparent;color:#fff;font-weight:bold;font-size:14px;cursor:pointer;transition:.2s;}
+    .roul-bet-btn.sel{filter:brightness(1.5);transform:scale(1.05);}
+    .roul-bet-btn.red-btn{border-color:#ff4c4c;color:#ff4c4c;}
+    .roul-bet-btn.black-btn{border-color:#aaa;color:#aaa;}
+    .roul-bet-btn.green-btn{border-color:#4cff72;color:#4cff72;}
+
+    /* STAKE INPUT */
+    .stake-row{display:flex;gap:8px;align-items:center;margin-bottom:12px;}
+    .stake-input{flex:1;background:rgba(255,255,255,.08);border:2px solid rgba(255,107,53,.5);border-radius:10px;padding:10px 14px;color:#fff;font-size:15px;outline:none;}
+    .stake-input:focus{border-color:#ffa500;}
+    .quick-btns{display:flex;gap:6px;}
+    .q-btn{background:rgba(255,165,0,.15);border:1px solid rgba(255,165,0,.4);color:#ffa500;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;}
+
+    /* КЕЙСИ */
+    .case-open-wrap{display:flex;flex-direction:column;align-items:center;padding:0 16px;}
+    .case-anim{font-size:100px;margin:20px 0;animation:pulse 1s infinite;}
+    @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+    .case-spinning{animation:caseSpin .15s linear infinite;}
+    @keyframes caseSpin{0%{transform:rotate(0deg) scale(1);}50%{transform:rotate(180deg) scale(1.2);}100%{transform:rotate(360deg) scale(1);}}
+    .case-reward{font-size:20px;font-weight:bold;text-align:center;min-height:28px;margin-bottom:14px;}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(255,107,53,.95);color:#fff;padding:10px 22px;border-radius:999px;font-size:14px;font-weight:bold;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+    .toast.show{opacity:1;}
   </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <h2>🏛️ BARVIKHA TON CASINO</h2>
   <div id="balance" class="balance">💰 0 монет</div>
 </div>
 
+<!-- TABS -->
 <div class="tabs">
-  <div class="tab" data-screen="pve"><span>🎰 Онлайн</span></div>
-  <div class="tab" data-screen="pvp"><span>⚔️ PVP</span></div>
-  <div class="tab" data-screen="cases"><span>💎 Кейси</span></div>
+  <div class="tab" data-screen="online">🎰 Онлайн</div>
+  <div class="tab" data-screen="pvp">⚔️ PVP</div>
+  <div class="tab" data-screen="cases">💎 Кейси</div>
 </div>
 
-<!-- PVE -->
-<div id="screen-pve" class="screen">
-  <div class="mode-card" data-game="slots">
-    <div class="mode-header">
-      <div class="mode-icon">🎰</div>
-      <div><div class="mode-title">СЛОТИ</div><div class="mode-sub">класика casino</div></div>
-    </div>
+<!-- ONLINE -->
+<div id="screen-online" class="screen">
+  <div class="mode-card" data-open="slots">
+    <div class="mode-header"><div class="mode-icon">🎰</div><div><div class="mode-title">СЛОТИ</div><div class="mode-sub">класика casino</div></div></div>
     <div class="mode-desc">Крути барабани, збирай лінії та множники.</div>
-    <div class="mode-footer">
-      <div class="pill">мін. ставка: 0.1 TON</div>
-      <div class="pill">макс. виграш: x1000</div>
-    </div>
+    <div class="mode-footer"><div class="pill">мін. ставка: 1</div><div class="pill">макс. виграш: x50</div></div>
   </div>
-
-  <div class="mode-card" data-game="mines">
-    <div class="mode-header">
-      <div class="mode-icon">🧨</div>
-      <div><div class="mode-title">МАЙНИ</div><div class="mode-sub">мінне поле</div></div>
-    </div>
+  <div class="mode-card" data-open="mines">
+    <div class="mode-header"><div class="mode-icon">🧨</div><div><div class="mode-title">МАЙНИ</div><div class="mode-sub">мінне поле</div></div></div>
     <div class="mode-desc">Відкривай клітинки, уникай мін. Чим більше — тим вище множник.</div>
-    <div class="mode-footer">
-      <div class="pill">мін. ставка: 0.1 TON</div>
-      <div class="pill">ризик: низький / середній / високий</div>
-    </div>
+    <div class="mode-footer"><div class="pill">мін. ставка: 1</div><div class="pill">множник: до x25</div></div>
   </div>
-
-  <div class="mode-card" data-game="wheel">
-    <div class="mode-header">
-      <div class="mode-icon">🎡</div>
-      <div><div class="mode-title">КОЛЕСО</div><div class="mode-sub">x2 / x3 / x5 / x10</div></div>
-    </div>
-    <div class="mode-desc">Ставка на сектор множника. Якщо стрілка зупиняється на твоєму — виграш.</div>
-    <div class="mode-footer">
-      <div class="pill">мін. ставка: 0.1 TON</div>
-      <div class="pill">моментальний результат</div>
-    </div>
+  <div class="mode-card" data-open="wheel">
+    <div class="mode-header"><div class="mode-icon">🎡</div><div><div class="mode-title">КОЛЕСО</div><div class="mode-sub">x2 / x3 / x5 / x10</div></div></div>
+    <div class="mode-desc">Крути колесо — воно зупиниться на твоєму секторі або ні.</div>
+    <div class="mode-footer"><div class="pill">мін. ставка: 1</div><div class="pill">до x10</div></div>
   </div>
-
-  <button class="btn-main" id="btn-deposit">💎 Поповнити баланс TON</button>
-  <div class="small">Поповнення відпрацьовується ботом.</div>
 </div>
 
 <!-- PVP -->
 <div id="screen-pvp" class="screen">
-  <div class="mode-card" data-game="arena">
-    <div class="mode-header">
-      <div class="mode-icon">⚔️</div>
-      <div><div class="mode-title">АРЕНА</div><div class="mode-sub">режим PVP</div></div>
-    </div>
-    <div class="mode-desc">1v1 дуель. Обираєш тактику, атакуєш суперника, борешся за банк TON.</div>
-    <div class="mode-footer">
-      <div class="pill">ставка: від 0.25 TON</div>
-      <div class="pill">виграш: банк суперника</div>
-    </div>
+  <div class="mode-card" data-open="arena">
+    <div class="mode-header"><div class="mode-icon">⚔️</div><div><div class="mode-title">АРЕНА</div><div class="mode-sub">бій 1v1</div></div></div>
+    <div class="mode-desc">Бій з суперником. Атаки, контратаки, переможець забирає ставку.</div>
+    <div class="mode-footer"><div class="pill">ставка: від 5</div><div class="pill">виграш: x2</div></div>
   </div>
-
-  <div class="mode-card" data-game="roulettePvp">
-    <div class="mode-header">
-      <div class="mode-icon">🎯</div>
-      <div><div class="mode-title">РУЛЕТКА PVP</div><div class="mode-sub">дуель на множниках</div></div>
-    </div>
-    <div class="mode-desc">Двоє гравців ставлять на різні множники. Перемагає той, на чиєму секторі зупиниться колесо.</div>
-    <div class="mode-footer">
-      <div class="pill">ставка: від 0.25 TON</div>
-      <div class="pill">коефіцієнти: x2-x10</div>
-    </div>
-  </div>
-
-  <div class="mode-card" data-game="forge">
-    <div class="mode-header">
-      <div class="mode-icon">🔨</div>
-      <div><div class="mode-title">КУЗНИЦЯ</div><div class="mode-sub">анімований дроп</div></div>
-    </div>
-    <div class="mode-desc">Після PVP нагорода «кується» молотом: 3 удари — і з'являється предмет або TON.</div>
-    <div class="mode-footer">
-      <div class="pill">PVP‑нагороди</div>
-      <div class="pill">анімація + ефекти</div>
-    </div>
+  <div class="mode-card" data-open="roulette">
+    <div class="mode-header"><div class="mode-icon">🎯</div><div><div class="mode-title">РУЛЕТКА PVP</div><div class="mode-sub">червоне / чорне / зелене</div></div></div>
+    <div class="mode-desc">Постав на колір. Зелене — x14, червоне/чорне — x2.</div>
+    <div class="mode-footer"><div class="pill">мін. ставка: 1</div><div class="pill">зелене: x14</div></div>
   </div>
 </div>
 
 <!-- КЕЙСИ -->
 <div id="screen-cases" class="screen">
-  <div class="mode-card" data-game="case_bronze">
-    <div class="mode-header">
-      <div class="mode-icon">📦</div>
-      <div><div class="mode-title">БРОНЗОВИЙ</div><div class="mode-sub">стартовий лут</div></div>
-    </div>
-    <div class="mode-desc">Базові предмети + шанс на TON‑дроп.</div>
-    <div class="mode-footer">
-      <div class="pill">ціна: 50 монет</div>
-      <div class="pill">рідкість: звичайна</div>
-    </div>
+  <div class="mode-card" data-open="case" data-case="bronze" data-price="50">
+    <div class="mode-header"><div class="mode-icon">📦</div><div><div class="mode-title">БРОНЗОВИЙ</div><div class="mode-sub">стартовий лут</div></div></div>
+    <div class="mode-desc">Базові предмети + шанс на монети.</div>
+    <div class="mode-footer"><div class="pill">ціна: 50 монет</div><div class="pill">рідкість: звичайна</div></div>
   </div>
-
-  <div class="mode-card" data-game="case_silver">
-    <div class="mode-header">
-      <div class="mode-icon">🎁</div>
-      <div><div class="mode-title">СРІБНИЙ</div><div class="mode-sub">покращений лут</div></div>
-    </div>
-    <div class="mode-desc">Рідкісні предмети та підвищений TON‑дроп.</div>
-    <div class="mode-footer">
-      <div class="pill">ціна: 150 монет</div>
-      <div class="pill">рідкість: рідкісна</div>
-    </div>
+  <div class="mode-card" data-open="case" data-case="silver" data-price="150">
+    <div class="mode-header"><div class="mode-icon">🎁</div><div><div class="mode-title">СРІБНИЙ</div><div class="mode-sub">покращений лут</div></div></div>
+    <div class="mode-desc">Рідкісні предмети та підвищений дроп монет.</div>
+    <div class="mode-footer"><div class="pill">ціна: 150 монет</div><div class="pill">рідкість: рідкісна</div></div>
   </div>
-
-  <div class="mode-card" data-game="case_gold">
-    <div class="mode-header">
-      <div class="mode-icon">💎</div>
-      <div><div class="mode-title">ЗОЛОТИЙ</div><div class="mode-sub">легендарний дроп</div></div>
-    </div>
-    <div class="mode-desc">Максимальний шанс на легенду, аватар та великий TON.</div>
-    <div class="mode-footer">
-      <div class="pill">ціна: 300 монет</div>
-      <div class="pill">рідкість: легендарна</div>
-    </div>
+  <div class="mode-card" data-open="case" data-case="gold" data-price="300">
+    <div class="mode-header"><div class="mode-icon">💎</div><div><div class="mode-title">ЗОЛОТИЙ</div><div class="mode-sub">легендарний дроп</div></div></div>
+    <div class="mode-desc">Максимальний шанс на легендарні предмети.</div>
+    <div class="mode-footer"><div class="pill">ціна: 300 монет</div><div class="pill">рідкість: легендарна</div></div>
   </div>
+</div>
 
-  <button class="btn-main" id="btn-inventory">🎒 Відкрити інвентар</button>
-  <div class="small">Інвентар зберігається у боті.</div>
+<!-- ═══════════════ ІГРИ ═══════════════ -->
+
+<!-- СЛОТИ -->
+<div class="game-wrap" id="game-slots">
+  <div class="game-header">
+    <button class="back-btn" data-close="slots">←</button>
+    <span class="game-title">🎰 СЛОТИ</span>
+    <span class="game-bal" id="slots-bal"></span>
+  </div>
+  <div class="slots-wrap">
+    <div class="reels">
+      <div class="reel" id="r0">🍒</div>
+      <div class="reel" id="r1">🍋</div>
+      <div class="reel" id="r2">🍊</div>
+    </div>
+    <div class="slots-result" id="slots-result"></div>
+    <div class="stake-row">
+      <input class="stake-input" id="slots-stake" type="number" min="1" value="10" placeholder="Ставка"/>
+      <div class="quick-btns">
+        <button class="q-btn" onclick="setStake('slots-stake',10)">10</button>
+        <button class="q-btn" onclick="setStake('slots-stake',50)">50</button>
+        <button class="q-btn" onclick="setStake('slots-stake',100)">100</button>
+      </div>
+    </div>
+    <button class="btn-main" id="slots-spin-btn" onclick="spinSlots()">🎰 КРУТИТИ</button>
+  </div>
+</div>
+
+<!-- МАЙНИ -->
+<div class="game-wrap" id="game-mines">
+  <div class="game-header">
+    <button class="back-btn" data-close="mines">←</button>
+    <span class="game-title">🧨 МАЙНИ</span>
+    <span class="game-bal" id="mines-bal"></span>
+  </div>
+  <div style="padding:0 16px;">
+    <div class="mines-info">
+      <span>Мін на полі: <b id="mines-count-label">3</b></span>
+      <span class="mult-badge">x<span id="mines-mult">1.00</span></span>
+      <span>Безпечних: <b id="mines-safe-label">0</b></span>
+    </div>
+    <input type="range" id="mines-count" min="1" max="10" value="3" style="width:100%;margin-bottom:12px;accent-color:#ff6b35;" oninput="updateMinesCount()"/>
+    <div class="mines-grid" id="mines-grid"></div>
+    <div class="slots-result" id="mines-result"></div>
+    <div class="stake-row">
+      <input class="stake-input" id="mines-stake" type="number" min="1" value="10" placeholder="Ставка"/>
+      <div class="quick-btns">
+        <button class="q-btn" onclick="setStake('mines-stake',10)">10</button>
+        <button class="q-btn" onclick="setStake('mines-stake',50)">50</button>
+      </div>
+    </div>
+    <button class="btn-main" id="mines-start-btn" onclick="startMines()">🧨 ПОЧАТИ</button>
+    <button class="btn-main" id="mines-cashout-btn" style="display:none;background:linear-gradient(145deg,#4cff72,#00c853);margin-top:8px;" onclick="cashoutMines()">💰 ЗАБРАТИ ВИГРАШ</button>
+  </div>
+</div>
+
+<!-- КОЛЕСО -->
+<div class="game-wrap" id="game-wheel">
+  <div class="game-header">
+    <button class="back-btn" data-close="wheel">←</button>
+    <span class="game-title">🎡 КОЛЕСО</span>
+    <span class="game-bal" id="wheel-bal"></span>
+  </div>
+  <div class="wheel-wrap">
+    <div class="canvas-wrap">
+      <div class="wheel-arrow">▼</div>
+      <canvas id="wheelCanvas" width="280" height="280"></canvas>
+    </div>
+    <div class="wheel-result" id="wheel-result"></div>
+    <div class="stake-row">
+      <input class="stake-input" id="wheel-stake" type="number" min="1" value="10" placeholder="Ставка"/>
+      <div class="quick-btns">
+        <button class="q-btn" onclick="setStake('wheel-stake',10)">10</button>
+        <button class="q-btn" onclick="setStake('wheel-stake',50)">50</button>
+      </div>
+    </div>
+    <button class="btn-main" id="wheel-spin-btn" onclick="spinWheel()">🎡 КРУТИТИ</button>
+  </div>
+</div>
+
+<!-- АРЕНА -->
+<div class="game-wrap" id="game-arena">
+  <div class="game-header">
+    <button class="back-btn" data-close="arena">←</button>
+    <span class="game-title">⚔️ АРЕНА</span>
+    <span class="game-bal" id="arena-bal"></span>
+  </div>
+  <div class="arena-wrap">
+    <div class="fighters">
+      <div class="fighter">
+        <div class="fighter-icon">🧙</div>
+        <div class="fighter-name">ТИ</div>
+        <div class="hp-bar-wrap"><div class="hp-bar" id="my-hp" style="width:100%"></div></div>
+        <div id="my-hp-txt" style="font-size:12px;margin-top:3px;">100 HP</div>
+      </div>
+      <div class="vs">VS</div>
+      <div class="fighter">
+        <div class="fighter-icon">🐉</div>
+        <div class="fighter-name">СУПЕРНИК</div>
+        <div class="hp-bar-wrap"><div class="hp-bar enemy" id="en-hp" style="width:100%"></div></div>
+        <div id="en-hp-txt" style="font-size:12px;margin-top:3px;">100 HP</div>
+      </div>
+    </div>
+    <div class="arena-log" id="arena-log">Готуйся до бою!</div>
+    <div class="slots-result" id="arena-result"></div>
+    <div class="stake-row">
+      <input class="stake-input" id="arena-stake" type="number" min="5" value="10" placeholder="Ставка"/>
+    </div>
+    <button class="btn-main" id="arena-btn" onclick="startArena()">⚔️ В БІЙ!</button>
+  </div>
+</div>
+
+<!-- РУЛЕТКА PVP -->
+<div class="game-wrap" id="game-roulette">
+  <div class="game-header">
+    <button class="back-btn" data-close="roulette">←</button>
+    <span class="game-title">🎯 РУЛЕТКА</span>
+    <span class="game-bal" id="roul-bal"></span>
+  </div>
+  <div class="roul-wrap">
+    <div class="roul-pointer">▼</div>
+    <div class="roul-track" id="roul-track"></div>
+    <div class="slots-result" id="roul-result"></div>
+    <div class="roul-bets">
+      <button class="roul-bet-btn red-btn" id="bet-red" onclick="selectBet('red')">🔴 Червоне x2</button>
+      <button class="roul-bet-btn black-btn" id="bet-black" onclick="selectBet('black')">⚫ Чорне x2</button>
+      <button class="roul-bet-btn green-btn" id="bet-green" onclick="selectBet('green')">🟢 Зелене x14</button>
+    </div>
+    <div class="stake-row">
+      <input class="stake-input" id="roul-stake" type="number" min="1" value="10" placeholder="Ставка"/>
+      <div class="quick-btns">
+        <button class="q-btn" onclick="setStake('roul-stake',10)">10</button>
+        <button class="q-btn" onclick="setStake('roul-stake',50)">50</button>
+      </div>
+    </div>
+    <button class="btn-main" id="roul-btn" onclick="spinRoulette()">🎯 КРУТИТИ</button>
+  </div>
+</div>
+
+<!-- КЕЙС ВІДКРИТТЯ -->
+<div class="game-wrap" id="game-case">
+  <div class="game-header">
+    <button class="back-btn" data-close="case">←</button>
+    <span class="game-title" id="case-title">📦 КЕЙС</span>
+    <span class="game-bal" id="case-bal"></span>
+  </div>
+  <div class="case-open-wrap">
+    <div class="case-anim" id="case-icon">📦</div>
+    <div class="case-reward" id="case-reward-text"></div>
+    <button class="btn-main" id="case-open-btn" onclick="openCase()">📦 ВІДКРИТИ</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── Telegram WebApp ──────────────────────────
-  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-  if (tg) { tg.expand(); tg.BackButton.show(); tg.ready(); }
+var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+if(tg){tg.expand();tg.BackButton.show();tg.ready();}
 
-  // ── Баланс ───────────────────────────────────
-  const params = new URLSearchParams(window.location.search);
-  const startBalance = parseFloat(params.get('balance')) || 0;
-  document.getElementById('balance').textContent = '💰 ' + startBalance.toFixed(0) + ' монет';
+var params = new URLSearchParams(window.location.search);
+var balance = parseInt(params.get('balance')) || 1000;
+var currentCase = {type:'bronze', price:50};
 
-  // ── Екрани та вкладки ────────────────────────
-  const SCREENS = {
-    pve:   document.getElementById('screen-pve'),
-    pvp:   document.getElementById('screen-pvp'),
-    cases: document.getElementById('screen-cases')
-  };
+function updateBalanceUI(){
+  document.getElementById('balance').textContent = '💰 ' + balance + ' монет';
+}
+updateBalanceUI();
 
-  const TABS = document.querySelectorAll('.tab');
+// ── TABS ─────────────────────────────────────
+var tabs = document.querySelectorAll('.tab');
+var screens = {
+  online: document.getElementById('screen-online'),
+  pvp:    document.getElementById('screen-pvp'),
+  cases:  document.getElementById('screen-cases')
+};
 
-  function switchTab(key) {
-    TABS.forEach(function(t) {
-      t.classList.toggle('active', t.dataset.screen === key);
-    });
-    Object.keys(SCREENS).forEach(function(k) {
-      SCREENS[k].classList.toggle('active', k === key);
-    });
-  }
+function switchTab(key){
+  tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.screen === key); });
+  Object.keys(screens).forEach(function(k){ screens[k].classList.toggle('active', k === key); });
+}
 
-  // Кліки по вкладках
-  TABS.forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      switchTab(tab.dataset.screen);
-    });
-  });
+tabs.forEach(function(tab){
+  tab.addEventListener('click', function(){ switchTab(tab.dataset.screen); });
+});
 
-  // Автовибір вкладки по ?mode=
-  var modeMap = {
-    pvp:    'pvp',
-    arena:  'pvp',
-    forge:  'pvp',
-    casino: 'pve',
-    slots:  'pve',
-    wheel:  'pve',
-    mines:  'pve',
-    cases:  'cases',
-    case_bronze: 'cases',
-    case_silver: 'cases',
-    case_gold:   'cases'
-  };
-  var startMode = params.get('mode') || 'pve';
-  var targetTab = modeMap[startMode] || 'pve';
-  switchTab(targetTab);
+var modeMap = {pvp:'pvp',arena:'pvp',roulette:'pvp',online:'online',slots:'online',mines:'online',wheel:'online',cases:'cases',case:'cases'};
+var startMode = params.get('mode') || 'online';
+switchTab(modeMap[startMode] || 'online');
 
-  // ── Toast повідомлення ────────────────────────
-  function showToast(msg) {
-    var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.remove('show');
-    void t.offsetWidth; // reflow
-    t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 2500);
-  }
-
-  // ── Відправка дій боту ───────────────────────
-  function sendAction(action, payload) {
-    var data = Object.assign({ action: action, ts: Date.now() }, payload || {});
-    if (tg) {
-      tg.sendData(JSON.stringify(data));
+// ── GAME OPEN/CLOSE ───────────────────────────
+document.querySelectorAll('[data-open]').forEach(function(card){
+  card.addEventListener('click', function(){
+    var game = card.dataset.open;
+    if(game === 'case'){
+      currentCase = {type: card.dataset.case, price: parseInt(card.dataset.price)};
+      openCaseScreen();
     } else {
-      console.log('sendData (no tg):', data);
-      showToast('Відкрий у Telegram!');
+      openGame(game);
+    }
+  });
+});
+
+document.querySelectorAll('[data-close]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    closeGame(btn.dataset.close);
+  });
+});
+
+if(tg){ tg.BackButton.onClick(function(){ closeAllGames(); }); }
+
+function openGame(name){
+  document.getElementById('game-'+name).classList.add('open');
+  updateGameBal(name);
+  if(name==='wheel') drawWheel(0);
+  if(name==='mines') initMinesGrid();
+  if(name==='roulette') buildRoulTrack();
+  if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+}
+
+function closeGame(name){
+  document.getElementById('game-'+name).classList.remove('open');
+}
+
+function closeAllGames(){
+  document.querySelectorAll('.game-wrap.open').forEach(function(g){ g.classList.remove('open'); });
+}
+
+function updateGameBal(name){
+  var el = document.getElementById(name+'-bal');
+  if(el) el.textContent = '💰 '+balance;
+}
+
+function updateAllBals(){
+  updateBalanceUI();
+  ['slots','mines','wheel','arena','roul','case'].forEach(function(n){
+    var el = document.getElementById(n+'-bal');
+    if(el) el.textContent = '💰 '+balance;
+  });
+}
+
+// ── HELPERS ──────────────────────────────────
+function setStake(id, val){ document.getElementById(id).value = val; }
+
+function getStake(id){
+  var v = parseInt(document.getElementById(id).value);
+  return isNaN(v) || v < 1 ? 0 : v;
+}
+
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+function sendResult(action, payload){
+  if(tg){
+    tg.sendData(JSON.stringify(Object.assign({action:action, ts:Date.now()}, payload||{})));
+  }
+}
+
+// ════════════════════════════════════════
+//  СЛОТИ
+// ════════════════════════════════════════
+var SYMS = ['🍒','🍋','🍊','🍇','⭐','💎','7️⃣'];
+var PAYOUTS = {'🍒':2,'🍋':3,'🍊':4,'🍇':5,'⭐':8,'💎':15,'7️⃣':50};
+var slotsRunning = false;
+
+function spinSlots(){
+  if(slotsRunning) return;
+  var stake = getStake('slots-stake');
+  if(!stake){ showToast('Введи ставку!'); return; }
+  if(stake > balance){ showToast('Недостатньо монет!'); return; }
+  slotsRunning = true;
+  balance -= stake;
+  updateAllBals();
+  document.getElementById('slots-result').textContent = '';
+  document.getElementById('slots-spin-btn').disabled = true;
+
+  var results = [0,1,2].map(function(){ return Math.floor(Math.random()*SYMS.length); });
+  var delays = [400,600,800];
+
+  results.forEach(function(ri, i){
+    var reel = document.getElementById('r'+i);
+    var tick = 0;
+    var iv = setInterval(function(){
+      reel.textContent = SYMS[Math.floor(Math.random()*SYMS.length)];
+      tick++;
+      if(tick > delays[i]/80){
+        clearInterval(iv);
+        reel.textContent = SYMS[ri];
+        reel.classList.add('spin');
+        setTimeout(function(){ reel.classList.remove('spin'); }, 400);
+        if(i===2) finishSlots(results, stake);
+      }
+    }, 80);
+  });
+}
+
+function finishSlots(results, stake){
+  var res = document.getElementById('slots-result');
+  var win = 0;
+  if(results[0]===results[1] && results[1]===results[2]){
+    win = stake * PAYOUTS[SYMS[results[0]]];
+    res.className = 'slots-result win';
+    res.textContent = '🎉 ДЖЕКПОТ! +'+win;
+    if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+  } else if(results[0]===results[1] || results[1]===results[2]){
+    win = stake * 1.5 | 0;
+    res.className = 'slots-result win';
+    res.textContent = '✨ Пара! +'+win;
+  } else {
+    res.className = 'slots-result lose';
+    res.textContent = '😢 Програш -'+stake;
+  }
+  balance += win;
+  updateAllBals();
+  sendResult('game_result',{gameType:'slots', won: win>0, amount: win>0?win:stake});
+  slotsRunning = false;
+  document.getElementById('slots-spin-btn').disabled = false;
+}
+
+// ════════════════════════════════════════
+//  МАЙНИ
+// ════════════════════════════════════════
+var minesActive = false;
+var minesData = [];
+var minesSafe = 0;
+var minesStake = 0;
+
+function updateMinesCount(){
+  document.getElementById('mines-count-label').textContent = document.getElementById('mines-count').value;
+  calcMinesMult();
+}
+
+function calcMinesMult(){
+  var bombs = parseInt(document.getElementById('mines-count').value);
+  var mult = (1 + bombs * 0.4 * (minesSafe||0) * 0.3).toFixed(2);
+  document.getElementById('mines-mult').textContent = (1 + bombs*0.12 + (minesSafe||0)*bombs*0.07).toFixed(2);
+}
+
+function initMinesGrid(){
+  var grid = document.getElementById('mines-grid');
+  grid.innerHTML = '';
+  minesActive = false; minesSafe = 0;
+  document.getElementById('mines-result').textContent = '';
+  document.getElementById('mines-cashout-btn').style.display = 'none';
+  document.getElementById('mines-start-btn').style.display = 'block';
+  document.getElementById('mines-count').disabled = false;
+  for(var i=0;i<25;i++){
+    var cell = document.createElement('div');
+    cell.className = 'mine-cell';
+    cell.textContent = '?';
+    cell.dataset.idx = i;
+    cell.addEventListener('click', clickMineCell);
+    grid.appendChild(cell);
+  }
+  calcMinesMult();
+}
+
+function startMines(){
+  var stake = getStake('mines-stake');
+  if(!stake){ showToast('Введи ставку!'); return; }
+  if(stake > balance){ showToast('Недостатньо монет!'); return; }
+  minesStake = stake;
+  balance -= stake;
+  minesSafe = 0;
+  updateAllBals();
+
+  var bombs = parseInt(document.getElementById('mines-count').value);
+  var positions = [];
+  while(positions.length < bombs){
+    var p = Math.floor(Math.random()*25);
+    if(positions.indexOf(p)<0) positions.push(p);
+  }
+  minesData = [];
+  for(var i=0;i<25;i++) minesData.push(positions.indexOf(i)>=0 ? 'bomb' : 'safe');
+  minesActive = true;
+  document.getElementById('mines-start-btn').style.display = 'none';
+  document.getElementById('mines-cashout-btn').style.display = 'block';
+  document.getElementById('mines-count').disabled = true;
+  document.getElementById('mines-result').textContent = '';
+  calcMinesMult();
+}
+
+function clickMineCell(e){
+  if(!minesActive) return;
+  var cell = e.currentTarget;
+  if(cell.classList.contains('revealed')) return;
+  var idx = parseInt(cell.dataset.idx);
+  cell.classList.add('revealed');
+
+  if(minesData[idx]==='bomb'){
+    cell.textContent = '💣';
+    cell.classList.add('boom');
+    minesActive = false;
+    revealAllMines();
+    document.getElementById('mines-result').className = 'slots-result lose';
+    document.getElementById('mines-result').textContent = '💥 Бум! Програш -'+minesStake;
+    document.getElementById('mines-cashout-btn').style.display = 'none';
+    sendResult('game_result',{gameType:'mines', won:false, amount:minesStake});
+    if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+    setTimeout(initMinesGrid, 1500);
+  } else {
+    cell.textContent = '💎';
+    cell.classList.add('safe');
+    minesSafe++;
+    document.getElementById('mines-safe-label').textContent = minesSafe;
+    calcMinesMult();
+  }
+}
+
+function revealAllMines(){
+  document.querySelectorAll('#mines-grid .mine-cell').forEach(function(c,i){
+    if(minesData[i]==='bomb' && !c.classList.contains('revealed')){
+      c.textContent = '💣'; c.classList.add('boom','revealed');
+    }
+  });
+}
+
+function cashoutMines(){
+  if(!minesActive || minesSafe===0){ showToast('Відкрий хоча б одну клітинку!'); return; }
+  var bombs = parseInt(document.getElementById('mines-count').value);
+  var mult = parseFloat((1 + bombs*0.12 + minesSafe*bombs*0.07).toFixed(2));
+  var win = Math.floor(minesStake * mult);
+  balance += win;
+  minesActive = false;
+  updateAllBals();
+  document.getElementById('mines-result').className = 'slots-result win';
+  document.getElementById('mines-result').textContent = '💰 Забрав! x'+mult+' = +'+win;
+  document.getElementById('mines-cashout-btn').style.display = 'none';
+  sendResult('game_result',{gameType:'mines', won:true, amount:win});
+  if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+  setTimeout(initMinesGrid, 1500);
+}
+
+// ════════════════════════════════════════
+//  КОЛЕСО
+// ════════════════════════════════════════
+var WHEEL_SEGS = [
+  {label:'x2',mult:2,color:'#ff6b35'},{label:'x0',mult:0,color:'#302b63'},
+  {label:'x3',mult:3,color:'#ffa500'},{label:'x0',mult:0,color:'#302b63'},
+  {label:'x5',mult:5,color:'#ff3d9a'},{label:'x0',mult:0,color:'#302b63'},
+  {label:'x2',mult:2,color:'#ff6b35'},{label:'x10',mult:10,color:'#4cff72'},
+  {label:'x0',mult:0,color:'#302b63'},{label:'x3',mult:3,color:'#ffa500'},
+  {label:'x0',mult:0,color:'#302b63'},{label:'x2',mult:2,color:'#ff6b35'},
+];
+var wheelAngle = 0;
+var wheelRunning = false;
+
+function drawWheel(angle){
+  var canvas = document.getElementById('wheelCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var cx = 140, cy = 140, r = 130;
+  var n = WHEEL_SEGS.length;
+  var arc = 2*Math.PI/n;
+  ctx.clearRect(0,0,280,280);
+  WHEEL_SEGS.forEach(function(seg,i){
+    var start = angle + i*arc - Math.PI/2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,start+arc);
+    ctx.closePath();
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(start + arc/2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 15px sans-serif';
+    ctx.fillText(seg.label, r-10, 5);
+    ctx.restore();
+  });
+  ctx.beginPath();
+  ctx.arc(cx,cy,18,0,2*Math.PI);
+  ctx.fillStyle = '#1a1a3e';
+  ctx.fill();
+  ctx.strokeStyle = '#ffa500';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function spinWheel(){
+  if(wheelRunning) return;
+  var stake = getStake('wheel-stake');
+  if(!stake){ showToast('Введи ставку!'); return; }
+  if(stake > balance){ showToast('Недостатньо монет!'); return; }
+  wheelRunning = true;
+  balance -= stake;
+  updateAllBals();
+  document.getElementById('wheel-result').textContent = '';
+  document.getElementById('wheel-spin-btn').disabled = true;
+
+  var n = WHEEL_SEGS.length;
+  var targetIdx = Math.floor(Math.random()*n);
+  var arc = 2*Math.PI/n;
+  var extra = 4*2*Math.PI + (n - targetIdx)*arc + arc/2;
+  var total = extra;
+  var duration = 3000;
+  var start = null;
+  var initAngle = wheelAngle;
+
+  function anim(ts){
+    if(!start) start = ts;
+    var elapsed = ts - start;
+    var progress = Math.min(elapsed/duration, 1);
+    var ease = 1 - Math.pow(1-progress, 3);
+    wheelAngle = initAngle + total*ease;
+    drawWheel(wheelAngle);
+    if(progress < 1){ requestAnimationFrame(anim); }
+    else {
+      var seg = WHEEL_SEGS[targetIdx];
+      var win = seg.mult > 0 ? stake * seg.mult : 0;
+      balance += win;
+      updateAllBals();
+      var res = document.getElementById('wheel-result');
+      if(win > 0){
+        res.className = 'wheel-result win';
+        res.textContent = '🎉 ' + seg.label + ' → +' + win;
+        if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      } else {
+        res.className = 'wheel-result lose';
+        res.textContent = '😢 Програш -' + stake;
+      }
+      sendResult('game_result',{gameType:'wheel', won:win>0, amount:win>0?win:stake});
+      wheelRunning = false;
+      document.getElementById('wheel-spin-btn').disabled = false;
     }
   }
+  requestAnimationFrame(anim);
+}
 
-  // ── Кліки по картках ─────────────────────────
-  document.querySelectorAll('.mode-card').forEach(function(card) {
-    card.addEventListener('click', function() {
-      var game = card.dataset.game;
-      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-      showToast('Запит: ' + game);
-      sendAction('open_game', { game: game });
-    });
-  });
+// ════════════════════════════════════════
+//  АРЕНА
+// ════════════════════════════════════════
+var arenaRunning = false;
 
-  // ── Кнопки ───────────────────────────────────
-  document.getElementById('btn-deposit').addEventListener('click', function() {
-    sendAction('deposit_request');
-    showToast('Запит на поповнення відправлено!');
-  });
+function startArena(){
+  if(arenaRunning) return;
+  var stake = getStake('arena-stake');
+  if(!stake){ showToast('Введи ставку!'); return; }
+  if(stake > balance){ showToast('Недостатньо монет!'); return; }
+  arenaRunning = true;
+  balance -= stake;
+  updateAllBals();
+  document.getElementById('arena-btn').disabled = true;
+  document.getElementById('arena-result').textContent = '';
+  document.getElementById('arena-log').innerHTML = '⚔️ Бій почався!<br>';
 
-  document.getElementById('btn-inventory').addEventListener('click', function() {
-    sendAction('open_inventory');
-    showToast('Відкриваємо інвентар...');
-  });
+  var myHp = 100, enHp = 100;
+  var round = 0;
 
-  // ── Кнопка Назад ─────────────────────────────
-  if (tg) {
-    tg.BackButton.onClick(function() {
-      tg.close();
-    });
+  function updateHP(){
+    document.getElementById('my-hp').style.width = Math.max(0,myHp)+'%';
+    document.getElementById('en-hp').style.width = Math.max(0,enHp)+'%';
+    document.getElementById('my-hp-txt').textContent = Math.max(0,myHp)+' HP';
+    document.getElementById('en-hp-txt').textContent = Math.max(0,enHp)+' HP';
   }
+
+  function addLog(msg, cls){
+    var log = document.getElementById('arena-log');
+    var span = document.createElement('span');
+    span.className = cls||'';
+    span.innerHTML = msg+'<br>';
+    log.appendChild(span);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function doRound(){
+    round++;
+    var myAtk = Math.floor(Math.random()*25)+5;
+    var enAtk = Math.floor(Math.random()*25)+5;
+    var myCrit = Math.random()<0.2;
+    var enCrit = Math.random()<0.2;
+    if(myCrit) myAtk = Math.floor(myAtk*2);
+    if(enCrit) enAtk = Math.floor(enAtk*2);
+    enHp -= myAtk;
+    myHp -= enAtk;
+    updateHP();
+    addLog('Раунд '+round+': Ти завдаєш '+(myCrit?'💥КРИТ ':'')+'<b>'+myAtk+'</b> — Суперник завдає '+(enCrit?'💥КРИТ ':'')+'<b>'+enAtk+'</b>', 'log-hit');
+
+    if(myHp<=0 || enHp<=0 || round>=8){
+      var won = myHp > enHp;
+      var res = document.getElementById('arena-result');
+      if(won){
+        var prize = stake*2;
+        balance += prize;
+        updateAllBals();
+        res.className='slots-result win';
+        res.textContent='🏆 ПЕРЕМОГА! +'+prize;
+        addLog('🏆 Ти переміг!','log-win');
+        sendResult('game_result',{gameType:'arena',won:true,amount:prize});
+        if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      } else {
+        res.className='slots-result lose';
+        res.textContent='💀 Програш -'+stake;
+        addLog('💀 Ти програв','log-lose');
+        sendResult('game_result',{gameType:'arena',won:false,amount:stake});
+        if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+      }
+      arenaRunning = false;
+      document.getElementById('arena-btn').disabled = false;
+      document.getElementById('arena-btn').textContent = '⚔️ ЗНОВУ!';
+      document.getElementById('arena-btn').onclick = function(){ resetArena(); startArena(); };
+      return;
+    }
+    setTimeout(doRound, 700);
+  }
+
+  resetArenaHP();
+  setTimeout(doRound, 400);
+}
+
+function resetArena(){
+  document.getElementById('my-hp').style.width='100%';
+  document.getElementById('en-hp').style.width='100%';
+  document.getElementById('my-hp-txt').textContent='100 HP';
+  document.getElementById('en-hp-txt').textContent='100 HP';
+  document.getElementById('arena-log').innerHTML='Готуйся до бою!';
+  document.getElementById('arena-result').textContent='';
+  document.getElementById('arena-btn').textContent='⚔️ В БІЙ!';
+  document.getElementById('arena-btn').onclick = startArena;
+}
+
+function resetArenaHP(){
+  document.getElementById('my-hp').style.width='100%';
+  document.getElementById('en-hp').style.width='100%';
+  document.getElementById('my-hp-txt').textContent='100 HP';
+  document.getElementById('en-hp-txt').textContent='100 HP';
+  document.getElementById('arena-log').innerHTML='';
+}
+
+// ════════════════════════════════════════
+//  РУЛЕТКА PVP
+// ════════════════════════════════════════
+var roulBet = null;
+var roulRunning = false;
+var ROUL = [];
+for(var i=0;i<37;i++){
+  if(i===0) ROUL.push({n:0,c:'green'});
+  else if([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].indexOf(i)>=0) ROUL.push({n:i,c:'red'});
+  else ROUL.push({n:i,c:'black'});
+}
+
+function buildRoulTrack(){
+  var track = document.getElementById('roul-track');
+  track.innerHTML = '';
+  var all = [];
+  for(var r=0;r<4;r++) ROUL.forEach(function(s){ all.push(s); });
+  all.forEach(function(s){
+    var d = document.createElement('div');
+    d.className = 'roul-item '+s.c;
+    d.textContent = s.n;
+    track.appendChild(d);
+  });
+}
+
+function selectBet(color){
+  roulBet = color;
+  ['red','black','green'].forEach(function(c){
+    document.getElementById('bet-'+c).classList.toggle('sel', c===color);
+  });
+}
+
+function spinRoulette(){
+  if(roulRunning) return;
+  if(!roulBet){ showToast('Обери колір!'); return; }
+  var stake = getStake('roul-stake');
+  if(!stake){ showToast('Введи ставку!'); return; }
+  if(stake > balance){ showToast('Недостатньо монет!'); return; }
+
+  roulRunning = true;
+  balance -= stake;
+  updateAllBals();
+  document.getElementById('roul-btn').disabled = true;
+  document.getElementById('roul-result').textContent = '';
+
+  var resultIdx = Math.floor(Math.random()*37);
+  var result = ROUL[resultIdx];
+
+  var track = document.getElementById('roul-track');
+  var items = track.querySelectorAll('.roul-item');
+  var totalItems = items.length;
+  var itemW = 62;
+  var targetPos = Math.floor(totalItems*0.6) + resultIdx;
+  if(targetPos >= totalItems) targetPos = totalItems - 37 + resultIdx;
+
+  var start = null;
+  var duration = 3500;
+  var initScroll = track.scrollLeft;
+  var finalScroll = targetPos * itemW - track.clientWidth/2 + itemW/2;
+
+  function anim(ts){
+    if(!start) start = ts;
+    var elapsed = ts - start;
+    var progress = Math.min(elapsed/duration, 1);
+    var ease = 1 - Math.pow(1-progress, 4);
+    track.scrollLeft = initScroll + (finalScroll - initScroll)*ease;
+    if(progress < 1){ requestAnimationFrame(anim); }
+    else {
+      items.forEach(function(it){ it.classList.remove('active'); });
+      if(items[targetPos]) items[targetPos].classList.add('active');
+
+      var mult = result.c==='green' ? 14 : 2;
+      var won = result.c === roulBet;
+      var win = won ? stake*mult : 0;
+      balance += win;
+      updateAllBals();
+      var res = document.getElementById('roul-result');
+      if(won){
+        res.className='slots-result win';
+        res.textContent='🎉 '+result.n+' '+result.c.toUpperCase()+' → +'+win;
+        if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      } else {
+        res.className='slots-result lose';
+        res.textContent='😢 '+result.n+' '+result.c.toUpperCase()+' — Програш -'+stake;
+      }
+      sendResult('game_result',{gameType:'roulette',won:won,amount:won?win:stake});
+      roulRunning = false;
+      document.getElementById('roul-btn').disabled = false;
+    }
+  }
+  requestAnimationFrame(anim);
+}
+
+// ════════════════════════════════════════
+//  КЕЙСИ
+// ════════════════════════════════════════
+var CASE_REWARDS = {
+  bronze:[
+    {icon:'🗡️',name:'Бронзовий меч',rare:'звичайний'},
+    {icon:'🛡️',name:'Щит новачка',rare:'звичайний'},
+    {icon:'💰',name:'+75 монет',rare:'звичайний',coins:75},
+    {icon:'🧤',name:'Рукавички',rare:'звичайний'},
+    {icon:'💎',name:'+30 монет',rare:'звичайний',coins:30},
+  ],
+  silver:[
+    {icon:'⚔️',name:'Срібний клинок',rare:'рідкісний'},
+    {icon:'🏹',name:'Лук лісовика',rare:'рідкісний'},
+    {icon:'💰',name:'+200 монет',rare:'рідкісний',coins:200},
+    {icon:'🔮',name:'Кристал магії',rare:'рідкісний'},
+    {icon:'👑',name:'Срібна корона',rare:'рідкісний'},
+  ],
+  gold:[
+    {icon:'🔱',name:'Тризуб богів',rare:'легендарний'},
+    {icon:'💎',name:'+500 монет',rare:'легендарний',coins:500},
+    {icon:'🌟',name:'Зоряний артефакт',rare:'легендарний'},
+    {icon:'👑',name:'Золота корона',rare:'легендарний'},
+    {icon:'🐉',name:'Дракон-скін',rare:'легендарний'},
+  ]
+};
+
+var caseIcons = {bronze:'📦', silver:'🎁', gold:'💎'};
+var caseTitles = {bronze:'📦 БРОНЗОВИЙ', silver:'🎁 СРІБНИЙ', gold:'💎 ЗОЛОТИЙ'};
+
+function openCaseScreen(){
+  document.getElementById('case-title').textContent = caseTitles[currentCase.type];
+  document.getElementById('case-icon').textContent = caseIcons[currentCase.type];
+  document.getElementById('case-icon').className = 'case-anim';
+  document.getElementById('case-reward-text').textContent = '';
+  document.getElementById('case-open-btn').disabled = false;
+  document.getElementById('case-open-btn').textContent = '📦 ВІДКРИТИ (' + currentCase.price + ' монет)';
+  openGame('case');
+}
+
+function openCase(){
+  if(balance < currentCase.price){ showToast('Недостатньо монет!'); return; }
+  balance -= currentCase.price;
+  updateAllBals();
+  document.getElementById('case-open-btn').disabled = true;
+  var icon = document.getElementById('case-icon');
+  icon.className = 'case-anim case-spinning';
+
+  setTimeout(function(){
+    var rewards = CASE_REWARDS[currentCase.type];
+    var reward = rewards[Math.floor(Math.random()*rewards.length)];
+    if(reward.coins){ balance += reward.coins; updateAllBals(); }
+    icon.className = 'case-anim';
+    icon.textContent = reward.icon;
+    var rtxt = document.getElementById('case-reward-text');
+    rtxt.className = 'case-reward win';
+    rtxt.textContent = reward.icon + ' ' + reward.name + ' (' + reward.rare + ')';
+    document.getElementById('case-open-btn').disabled = false;
+    document.getElementById('case-open-btn').textContent = '🔄 Відкрити ще';
+    sendResult('reward_received',{
+      caseType: currentCase.type === 'bronze' ? 'Бронзовий' : currentCase.type === 'silver' ? 'Срібний' : 'Золотий',
+      reward: {icon: reward.icon, name: reward.name}
+    });
+    if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+  }, 1500);
+}
 </script>
 </body>
 </html>
