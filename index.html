@@ -206,62 +206,27 @@
     // баланс из query
     const params = new URLSearchParams(window.location.search);
     const startBalance = parseFloat(params.get('balance')) || 0;
-    const balanceEl = document.getElementById('balance');
-    balanceEl.textContent = `💰 ${startBalance.toFixed(2)} TON`;
+    // Автоматично відкриваємо потрібну вкладку
+const startMode = params.get('mode') || 'pve';
 
-    // переключение вкладок
-    const tabs = document.querySelectorAll('.tab');
-    const screens = {
-      pve: document.getElementById('screen-pve'),
-      pvp: document.getElementById('screen-pvp'),
-      cases: document.getElementById('screen-cases')
-    };
+const modeToTab = {
+  'forge':  'cases',
+  'pvp':    'pvp',
+  'casino': 'pve',
+  'slots':  'pve',
+  'arena':  'pvp',
+};
 
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        const screenKey = tab.dataset.screen;
-        Object.keys(screens).forEach(k => {
-          screens[k].classList.toggle('active', k === screenKey);
-        });
-      });
-    });
+const targetTab = modeToTab[startMode] || 'pve';
 
-    // отправка действий боту
-    function sendAction(action, payload = {}) {
-      if (!tg) return;
-      const data = { action, ...payload, ts: Date.now() };
-      tg.sendData(JSON.stringify(data));
-    }
+// Активуємо потрібну вкладку при завантаженні
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.classList.toggle('active', tab.dataset.screen === targetTab);
+});
+Object.keys(screens).forEach(k => {
+  screens[k].classList.toggle('active', k === targetTab);
+});
 
-    // клики по режимам
-    document.querySelectorAll('.mode-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const game = card.dataset.game;
-        sendAction('open_game', { game });
-        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-      });
-    });
-
-    // пополнение / инвентарь
-    document.getElementById('btn-deposit').addEventListener('click', () => {
-      sendAction('deposit_request');
-      tg?.showAlert?.('Запит на поповнення відправлено боту');
-    });
-
-    document.getElementById('btn-inventory').addEventListener('click', () => {
-      sendAction('open_inventory');
-    });
-
-    // кнопка Назад
-    if (tg) {
-      tg.BackButton.onClick(() => {
-        sendAction('back');
-        tg.close();
-      });
-      tg.ready();
-    }
   </script>
 </body>
 </html>
