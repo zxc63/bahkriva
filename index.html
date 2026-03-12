@@ -196,37 +196,83 @@
     <div class="small">Список предметів зберігається у боті. Mini‑app лише відправляє дію відкриття кейса.</div>
   </div>
 
-  <script>
-    const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.expand();
-      tg.BackButton.show();
-    }
+<script>
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.expand();
+    tg.BackButton.show();
+  }
 
-    // баланс из query
-    const params = new URLSearchParams(window.location.search);
-    const startBalance = parseFloat(params.get('balance')) || 0;
-    // Автоматично відкриваємо потрібну вкладку
-const startMode = params.get('mode') || 'pve';
+  const params = new URLSearchParams(window.location.search);
+  const startBalance = parseFloat(params.get('balance')) || 0;
 
-const modeToTab = {
-  'forge':  'cases',
-  'pvp':    'pvp',
-  'casino': 'pve',
-  'slots':  'pve',
-  'arena':  'pvp',
-};
+  // Показуємо баланс
+  document.getElementById('balance').textContent = '💰 ' + startBalance.toFixed(2) + ' монет';
 
-const targetTab = modeToTab[startMode] || 'pve';
+  // ОБ'ЯВЛЯЄМО screens ДО використання
+  const screens = {
+    pve:   document.getElementById('screen-pve'),
+    pvp:   document.getElementById('screen-pvp'),
+    cases: document.getElementById('screen-cases')
+  };
 
-// Активуємо потрібну вкладку при завантаженні
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.classList.toggle('active', tab.dataset.screen === targetTab);
-});
-Object.keys(screens).forEach(k => {
-  screens[k].classList.toggle('active', k === targetTab);
-});
+  // Перемикання вкладок
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const key = tab.dataset.screen;
+      Object.keys(screens).forEach(k => {
+        screens[k].classList.toggle('active', k === key);
+      });
+    });
+  });
 
-  </script>
+  // Автовідкриття вкладки по ?mode=
+  const startMode = params.get('mode') || 'pve';
+  const modeToTab = {
+    forge:  'cases',
+    pvp:    'pvp',
+    casino: 'pve',
+    slots:  'pve',
+    arena:  'pvp',
+    cases:  'cases',
+  };
+  const targetTab = modeToTab[startMode] || 'pve';
+
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.screen === targetTab));
+  Object.keys(screens).forEach(k => {
+    screens[k].classList.toggle('active', k === targetTab);
+  });
+
+  // Кліки по картках
+  document.querySelectorAll('.mode-card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+      sendAction('open_game', { game: card.dataset.game });
+    });
+  });
+
+  document.getElementById('btn-deposit').addEventListener('click', () => {
+    sendAction('deposit_request');
+    tg?.showAlert?.('Запит відправлено боту');
+  });
+
+  document.getElementById('btn-inventory').addEventListener('click', () => {
+    sendAction('open_inventory');
+  });
+
+  function sendAction(action, payload = {}) {
+    if (!tg) return;
+    tg.sendData(JSON.stringify({ action, ...payload, ts: Date.now() }));
+  }
+
+  if (tg) {
+    tg.BackButton.onClick(() => { sendAction('back'); tg.close(); });
+    tg.ready();
+  }
+</script>
+
 </body>
 </html>
