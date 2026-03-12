@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BARVIKHA TON Mini App</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"><\/script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -17,262 +17,263 @@
     .tabs{ display:flex; justify-content:space-around; margin-bottom:15px; padding:0 10px; }
     .tab{ flex:1; text-align:center; padding:10px; margin:0 5px; border-radius:999px; background:rgba(255,255,255,.05); cursor:pointer; font-size:14px; }
     .tab.active{ background:linear-gradient(145deg,#ff6b35,#ffa500); }
-    .tab span{ opacity:.9; }
     .screen{ display:none; padding:0 15px 20px; max-width:900px; margin:0 auto; }
     .screen.active{ display:block; }
-    .mode-card{ background:linear-gradient(145deg,rgba(255,107,53,.25),rgba(31,48,68,.5)); border:2px solid #ff6b35; border-radius:20px; padding:20px; margin-bottom:15px; cursor:pointer; position:relative; overflow:hidden; }
-    .mode-card:hover{ transform:translateY(-3px); box-shadow:0 8px 25px rgba(0,0,0,.6); border-color:#ffa500; }
+    .mode-card{ background:linear-gradient(145deg,rgba(255,107,53,.25),rgba(31,48,68,.5)); border:2px solid #ff6b35; border-radius:20px; padding:20px; margin-bottom:15px; cursor:pointer; }
+    .mode-card:active{ transform:scale(.98); }
     .mode-header{ display:flex; align-items:center; gap:12px; margin-bottom:8px; }
     .mode-icon{ font-size:40px; }
     .mode-title{ font-size:20px; font-weight:bold; text-transform:uppercase; }
     .mode-sub{ font-size:12px; opacity:.8; }
     .mode-desc{ font-size:13px; opacity:.9; margin-top:6px; }
-    .mode-footer{ display:flex; justify-content:space-between; margin-top:10px; font-size:12px; opacity:.85; }
+    .mode-footer{ display:flex; justify-content:space-between; margin-top:10px; font-size:12px; opacity:.85; flex-wrap:wrap; gap:6px; }
     .pill{ padding:4px 10px; border-radius:999px; background:rgba(0,0,0,.3); }
     .btn-main{ width:100%; margin-top:14px; padding:14px; border-radius:12px; border:none; background:linear-gradient(145deg,#ff6b35,#ffa500); color:#fff; font-weight:bold; font-size:15px; cursor:pointer; }
-    .btn-main:active{ transform:scale(.97); }
-    .small{ font-size:11px; opacity:.8; margin-top:6px; text-align:center; }
+    .small{ font-size:11px; opacity:.7; margin-top:8px; text-align:center; }
+    .toast{ position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:rgba(255,107,53,.95); color:#fff; padding:12px 24px; border-radius:999px; font-size:14px; font-weight:bold; display:none; z-index:9999; }
+    .toast.show{ display:block; animation:fadeInOut 2.5s ease forwards; }
+    @keyframes fadeInOut{ 0%{opacity:0;} 15%{opacity:1;} 75%{opacity:1;} 100%{opacity:0;} }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h2>🏛️ BARVIKHA TON CASINO</h2>
-    <div id="balance" class="balance">💰 0 TON</div>
-  </div>
 
-  <div class="tabs">
-    <div class="tab active" data-screen="pve"><span>Онлайн</span></div>
-    <div class="tab" data-screen="pvp"><span>PVP</span></div>
-    <div class="tab" data-screen="cases"><span>Кейси</span></div>
-  </div>
+<div class="header">
+  <h2>🏛️ BARVIKHA TON CASINO</h2>
+  <div id="balance" class="balance">💰 0 монет</div>
+</div>
 
-  <!-- PVE (соло / обычные игры) -->
-  <div id="screen-pve" class="screen active">
-    <div class="mode-card" data-game="slots">
-      <div class="mode-header">
-        <div class="mode-icon">🎰</div>
-        <div>
-          <div class="mode-title">СЛОТИ</div>
-          <div class="mode-sub">классика casino</div>
-        </div>
-      </div>
-      <div class="mode-desc">Крути барабани, збирай лінії та множники. RTP, авто‑спін та швидкі спіни.</div>
-      <div class="mode-footer">
-        <div class="pill">мін. ставка: 0.1 TON</div>
-        <div class="pill">макс. виграш: x1000</div>
-      </div>
+<div class="tabs">
+  <div class="tab" data-screen="pve"><span>🎰 Онлайн</span></div>
+  <div class="tab" data-screen="pvp"><span>⚔️ PVP</span></div>
+  <div class="tab" data-screen="cases"><span>💎 Кейси</span></div>
+</div>
+
+<!-- PVE -->
+<div id="screen-pve" class="screen">
+  <div class="mode-card" data-game="slots">
+    <div class="mode-header">
+      <div class="mode-icon">🎰</div>
+      <div><div class="mode-title">СЛОТИ</div><div class="mode-sub">класика casino</div></div>
     </div>
-
-    <div class="mode-card" data-game="mines">
-      <div class="mode-header">
-        <div class="mode-icon">🧨</div>
-        <div>
-          <div class="mode-title">МАЙНИ</div>
-          <div class="mode-sub">мінне поле</div>
-        </div>
-      </div>
-      <div class="mode-desc">Відкривай клітинки, уникай мін. Чим більше клітин — тим вище множник.</div>
-      <div class="mode-footer">
-        <div class="pill">мін. ставка: 0.1 TON</div>
-        <div class="pill">ризик: низький / середній / високий</div>
-      </div>
-    </div>
-
-    <div class="mode-card" data-game="wheel">
-      <div class="mode-header">
-        <div class="mode-icon">🎡</div>
-        <div>
-          <div class="mode-title">КОЛЕСО</div>
-          <div class="mode-sub">x2 / x3 / x5 / x10</div>
-        </div>
-      </div>
-      <div class="mode-desc">Ставка на сектор множника. Якщо стрілка зупиняється на твоєму — забираєш виграш.</div>
-      <div class="mode-footer">
-        <div class="pill">мін. ставка: 0.1 TON</div>
-        <div class="pill">моментальний результат</div>
-      </div>
-    </div>
-
-    <button class="btn-main" id="btn-deposit">💎 Поповнити баланс TON</button>
-    <div class="small">Поповнення / вивід TON відпрацьовується ботом. Mini‑app показує лише ігрові режими.</div>
-  </div>
-
-  <!-- PVP -->
-  <div id="screen-pvp" class="screen">
-    <div class="mode-card" data-game="arena">
-      <div class="mode-header">
-        <div class="mode-icon">⚔️</div>
-        <div>
-          <div class="mode-title">АРЕНА</div>
-          <div class="mode-sub">режим PVP</div>
-        </div>
-      </div>
-      <div class="mode-desc">1v1 дуель. Обираєш тактику, атакуєш суперника, борешся за банк TON.</div>
-      <div class="mode-footer">
-        <div class="pill">ставка: від 0.25 TON</div>
-        <div class="pill">виграш: банк суперника</div>
-      </div>
-    </div>
-
-    <div class="mode-card" data-game="roulettePvp">
-      <div class="mode-header">
-        <div class="mode-icon">🎯</div>
-        <div>
-          <div class="mode-title">РУЛЕТКА PVP</div>
-          <div class="mode-sub">дуель на множниках</div>
-        </div>
-      </div>
-      <div class="mode-desc">Двоє гравців ставлять на різні множники. Перемагає той, на чиєму секторі зупиниться колесо.</div>
-      <div class="mode-footer">
-        <div class="pill">ставка: від 0.25 TON</div>
-        <div class="pill">коефіцієнти: x2-x10</div>
-      </div>
-    </div>
-
-    <div class="mode-card" data-game="forge">
-      <div class="mode-header">
-        <div class="mode-icon">🔨</div>
-        <div>
-          <div class="mode-title">КУЗНИЦЯ</div>
-          <div class="mode-sub">анімована видача дропа</div>
-        </div>
-      </div>
-      <div class="mode-desc">Після PVP матчу нагорода «кується» ковальським молотом: 3 удари, і з'являється предмет або TON.</div>
-      <div class="mode-footer">
-        <div class="pill">PVP‑нагороди</div>
-        <div class="pill">анімація + ефекти</div>
-      </div>
+    <div class="mode-desc">Крути барабани, збирай лінії та множники.</div>
+    <div class="mode-footer">
+      <div class="pill">мін. ставка: 0.1 TON</div>
+      <div class="pill">макс. виграш: x1000</div>
     </div>
   </div>
 
-  <!-- Кейси -->
-  <div id="screen-cases" class="screen">
-    <div class="mode-card" data-game="case_bronze">
-      <div class="mode-header">
-        <div class="mode-icon">📦</div>
-        <div>
-          <div class="mode-title">БРОНЗОВИЙ КЕЙС</div>
-          <div class="mode-sub">стартовий лут</div>
-        </div>
-      </div>
-      <div class="mode-desc">Бюджетний кейс з базовими предметами, шансом отримати невеликий TON‑дроп.</div>
-      <div class="mode-footer">
-        <div class="pill">ціна: 0.5 TON</div>
-        <div class="pill">рідкість: звичайна</div>
-      </div>
+  <div class="mode-card" data-game="mines">
+    <div class="mode-header">
+      <div class="mode-icon">🧨</div>
+      <div><div class="mode-title">МАЙНИ</div><div class="mode-sub">мінне поле</div></div>
     </div>
-
-    <div class="mode-card" data-game="case_silver">
-      <div class="mode-header">
-        <div class="mode-icon">🎁</div>
-        <div>
-          <div class="mode-title">СРІБНИЙ КЕЙС</div>
-          <div class="mode-sub">покращений лут</div>
-        </div>
-      </div>
-      <div class="mode-desc">Кейс із рідкісними предметами, скінами та підвищеним TON‑дропом.</div>
-      <div class="mode-footer">
-        <div class="pill">ціна: 1 TON</div>
-        <div class="pill">рідкість: рідкісна</div>
-      </div>
+    <div class="mode-desc">Відкривай клітинки, уникай мін. Чим більше — тим вище множник.</div>
+    <div class="mode-footer">
+      <div class="pill">мін. ставка: 0.1 TON</div>
+      <div class="pill">ризик: низький / середній / високий</div>
     </div>
-
-    <div class="mode-card" data-game="case_gold">
-      <div class="mode-header">
-        <div class="mode-icon">💎</div>
-        <div>
-          <div class="mode-title">ЗОЛОТИЙ КЕЙС</div>
-          <div class="mode-sub">легендарний дроп</div>
-        </div>
-      </div>
-      <div class="mode-desc">Максимальний шанс на легендарні предмети, аватари та великий TON‑виграш.</div>
-      <div class="mode-footer">
-        <div class="pill">ціна: 2.5 TON</div>
-        <div class="pill">рідкість: легендарна</div>
-      </div>
-    </div>
-
-    <button class="btn-main" id="btn-inventory">🎒 Відкрити інвентар</button>
-    <div class="small">Список предметів зберігається у боті. Mini‑app лише відправляє дію відкриття кейса.</div>
   </div>
+
+  <div class="mode-card" data-game="wheel">
+    <div class="mode-header">
+      <div class="mode-icon">🎡</div>
+      <div><div class="mode-title">КОЛЕСО</div><div class="mode-sub">x2 / x3 / x5 / x10</div></div>
+    </div>
+    <div class="mode-desc">Ставка на сектор множника. Якщо стрілка зупиняється на твоєму — виграш.</div>
+    <div class="mode-footer">
+      <div class="pill">мін. ставка: 0.1 TON</div>
+      <div class="pill">моментальний результат</div>
+    </div>
+  </div>
+
+  <button class="btn-main" id="btn-deposit">💎 Поповнити баланс TON</button>
+  <div class="small">Поповнення відпрацьовується ботом.</div>
+</div>
+
+<!-- PVP -->
+<div id="screen-pvp" class="screen">
+  <div class="mode-card" data-game="arena">
+    <div class="mode-header">
+      <div class="mode-icon">⚔️</div>
+      <div><div class="mode-title">АРЕНА</div><div class="mode-sub">режим PVP</div></div>
+    </div>
+    <div class="mode-desc">1v1 дуель. Обираєш тактику, атакуєш суперника, борешся за банк TON.</div>
+    <div class="mode-footer">
+      <div class="pill">ставка: від 0.25 TON</div>
+      <div class="pill">виграш: банк суперника</div>
+    </div>
+  </div>
+
+  <div class="mode-card" data-game="roulettePvp">
+    <div class="mode-header">
+      <div class="mode-icon">🎯</div>
+      <div><div class="mode-title">РУЛЕТКА PVP</div><div class="mode-sub">дуель на множниках</div></div>
+    </div>
+    <div class="mode-desc">Двоє гравців ставлять на різні множники. Перемагає той, на чиєму секторі зупиниться колесо.</div>
+    <div class="mode-footer">
+      <div class="pill">ставка: від 0.25 TON</div>
+      <div class="pill">коефіцієнти: x2-x10</div>
+    </div>
+  </div>
+
+  <div class="mode-card" data-game="forge">
+    <div class="mode-header">
+      <div class="mode-icon">🔨</div>
+      <div><div class="mode-title">КУЗНИЦЯ</div><div class="mode-sub">анімований дроп</div></div>
+    </div>
+    <div class="mode-desc">Після PVP нагорода «кується» молотом: 3 удари — і з'являється предмет або TON.</div>
+    <div class="mode-footer">
+      <div class="pill">PVP‑нагороди</div>
+      <div class="pill">анімація + ефекти</div>
+    </div>
+  </div>
+</div>
+
+<!-- КЕЙСИ -->
+<div id="screen-cases" class="screen">
+  <div class="mode-card" data-game="case_bronze">
+    <div class="mode-header">
+      <div class="mode-icon">📦</div>
+      <div><div class="mode-title">БРОНЗОВИЙ</div><div class="mode-sub">стартовий лут</div></div>
+    </div>
+    <div class="mode-desc">Базові предмети + шанс на TON‑дроп.</div>
+    <div class="mode-footer">
+      <div class="pill">ціна: 50 монет</div>
+      <div class="pill">рідкість: звичайна</div>
+    </div>
+  </div>
+
+  <div class="mode-card" data-game="case_silver">
+    <div class="mode-header">
+      <div class="mode-icon">🎁</div>
+      <div><div class="mode-title">СРІБНИЙ</div><div class="mode-sub">покращений лут</div></div>
+    </div>
+    <div class="mode-desc">Рідкісні предмети та підвищений TON‑дроп.</div>
+    <div class="mode-footer">
+      <div class="pill">ціна: 150 монет</div>
+      <div class="pill">рідкість: рідкісна</div>
+    </div>
+  </div>
+
+  <div class="mode-card" data-game="case_gold">
+    <div class="mode-header">
+      <div class="mode-icon">💎</div>
+      <div><div class="mode-title">ЗОЛОТИЙ</div><div class="mode-sub">легендарний дроп</div></div>
+    </div>
+    <div class="mode-desc">Максимальний шанс на легенду, аватар та великий TON.</div>
+    <div class="mode-footer">
+      <div class="pill">ціна: 300 монет</div>
+      <div class="pill">рідкість: легендарна</div>
+    </div>
+  </div>
+
+  <button class="btn-main" id="btn-inventory">🎒 Відкрити інвентар</button>
+  <div class="small">Інвентар зберігається у боті.</div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-  const tg = window.Telegram?.WebApp;
-  if (tg) {
-    tg.expand();
-    tg.BackButton.show();
-  }
+  // ── Telegram WebApp ──────────────────────────
+  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  if (tg) { tg.expand(); tg.BackButton.show(); tg.ready(); }
 
+  // ── Баланс ───────────────────────────────────
   const params = new URLSearchParams(window.location.search);
   const startBalance = parseFloat(params.get('balance')) || 0;
+  document.getElementById('balance').textContent = '💰 ' + startBalance.toFixed(0) + ' монет';
 
-  // Показуємо баланс
-  document.getElementById('balance').textContent = '💰 ' + startBalance.toFixed(2) + ' монет';
-
-  // ОБ'ЯВЛЯЄМО screens ДО використання
-  const screens = {
+  // ── Екрани та вкладки ────────────────────────
+  const SCREENS = {
     pve:   document.getElementById('screen-pve'),
     pvp:   document.getElementById('screen-pvp'),
     cases: document.getElementById('screen-cases')
   };
 
-  // Перемикання вкладок
-  const tabs = document.querySelectorAll('.tab');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const key = tab.dataset.screen;
-      Object.keys(screens).forEach(k => {
-        screens[k].classList.toggle('active', k === key);
-      });
+  const TABS = document.querySelectorAll('.tab');
+
+  function switchTab(key) {
+    TABS.forEach(function(t) {
+      t.classList.toggle('active', t.dataset.screen === key);
+    });
+    Object.keys(SCREENS).forEach(function(k) {
+      SCREENS[k].classList.toggle('active', k === key);
+    });
+  }
+
+  // Кліки по вкладках
+  TABS.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      switchTab(tab.dataset.screen);
     });
   });
 
-  // Автовідкриття вкладки по ?mode=
-  const startMode = params.get('mode') || 'pve';
-  const modeToTab = {
-    forge:  'cases',
+  // Автовибір вкладки по ?mode=
+  var modeMap = {
     pvp:    'pvp',
+    arena:  'pvp',
+    forge:  'pvp',
     casino: 'pve',
     slots:  'pve',
-    arena:  'pvp',
+    wheel:  'pve',
+    mines:  'pve',
     cases:  'cases',
+    case_bronze: 'cases',
+    case_silver: 'cases',
+    case_gold:   'cases'
   };
-  const targetTab = modeToTab[startMode] || 'pve';
+  var startMode = params.get('mode') || 'pve';
+  var targetTab = modeMap[startMode] || 'pve';
+  switchTab(targetTab);
 
-  tabs.forEach(t => t.classList.toggle('active', t.dataset.screen === targetTab));
-  Object.keys(screens).forEach(k => {
-    screens[k].classList.toggle('active', k === targetTab);
-  });
+  // ── Toast повідомлення ────────────────────────
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.remove('show');
+    void t.offsetWidth; // reflow
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2500);
+  }
 
-  // Кліки по картках
-  document.querySelectorAll('.mode-card').forEach(card => {
-    card.addEventListener('click', () => {
-      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-      sendAction('open_game', { game: card.dataset.game });
+  // ── Відправка дій боту ───────────────────────
+  function sendAction(action, payload) {
+    var data = Object.assign({ action: action, ts: Date.now() }, payload || {});
+    if (tg) {
+      tg.sendData(JSON.stringify(data));
+    } else {
+      console.log('sendData (no tg):', data);
+      showToast('Відкрий у Telegram!');
+    }
+  }
+
+  // ── Кліки по картках ─────────────────────────
+  document.querySelectorAll('.mode-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var game = card.dataset.game;
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+      showToast('Запит: ' + game);
+      sendAction('open_game', { game: game });
     });
   });
 
-  document.getElementById('btn-deposit').addEventListener('click', () => {
+  // ── Кнопки ───────────────────────────────────
+  document.getElementById('btn-deposit').addEventListener('click', function() {
     sendAction('deposit_request');
-    tg?.showAlert?.('Запит відправлено боту');
+    showToast('Запит на поповнення відправлено!');
   });
 
-  document.getElementById('btn-inventory').addEventListener('click', () => {
+  document.getElementById('btn-inventory').addEventListener('click', function() {
     sendAction('open_inventory');
+    showToast('Відкриваємо інвентар...');
   });
 
-  function sendAction(action, payload = {}) {
-    if (!tg) return;
-    tg.sendData(JSON.stringify({ action, ...payload, ts: Date.now() }));
-  }
-
+  // ── Кнопка Назад ─────────────────────────────
   if (tg) {
-    tg.BackButton.onClick(() => { sendAction('back'); tg.close(); });
-    tg.ready();
+    tg.BackButton.onClick(function() {
+      tg.close();
+    });
   }
-</script>
-
+<\/script>
 </body>
 </html>
