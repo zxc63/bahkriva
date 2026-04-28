@@ -131,6 +131,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(10,10,20,.97);border:1px solid rgba(255,107,53,.5);color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;font-weight:bold;z-index:999;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;}
 .toast.show{opacity:1;}
+
+/* ── BALL ROLL PVP ────────────────────────────── */
+#br-table{width:100%;aspect-ratio:2/1;border-radius:14px;border:6px solid #5c3a1e;background:#1a4a2e;position:relative;overflow:hidden;box-shadow:inset 0 0 30px rgba(0,0,0,.5),0 0 0 2px #8b5e3c,0 6px 30px rgba(0,0,0,.7);}
+#br-table::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(255,255,255,.012) 10px,rgba(255,255,255,.012) 20px);pointer-events:none;}
+#br-table::after{content:'';position:absolute;left:50%;top:8%;height:84%;width:1px;background:rgba(255,255,255,.12);transform:translateX(-50%);}
+.br-goal{position:absolute;top:8%;width:16%;height:84%;border-radius:6px;opacity:.35;pointer-events:none;transition:opacity .3s;}
+.br-goal.active{opacity:.85;}
+#br-g1{left:2%;background:radial-gradient(ellipse,#f45c2e,transparent 70%);}
+#br-g2{right:2%;background:radial-gradient(ellipse,#2eb8f4,transparent 70%);}
+#br-canvas{position:absolute;inset:0;width:100%;height:100%;}
+.br-profiles{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:10px;}
+.br-profile{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border-radius:12px;border:2px solid;background:rgba(255,255,255,.04);flex:1;transition:all .3s;}
+#brp1{border-color:#f45c2e;}#brp2{border-color:#2eb8f4;}
+#brp1.br-win{box-shadow:0 0 18px rgba(244,92,46,.6);transform:scale(1.05);background:rgba(244,92,46,.1);}
+#brp2.br-win{box-shadow:0 0 18px rgba(46,184,244,.6);transform:scale(1.05);background:rgba(46,184,244,.1);}
+.br-pname{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+#brp1 .br-pname{color:#f45c2e;}#brp2 .br-pname{color:#2eb8f4;}
+.br-score-n{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;}
+#brp1 .br-score-n{color:#f45c2e;}#brp2 .br-score-n{color:#2eb8f4;}
+.br-crown{font-size:1rem;opacity:0;transform:scale(0);transition:all .35s cubic-bezier(.16,1,.3,1);display:block;}
+.br-win .br-crown{opacity:1;transform:scale(1);}
+.br-vs-badge{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;color:rgba(255,255,255,.25);padding:0 4px;}
+#br-status{font-size:.83rem;font-weight:700;letter-spacing:.04em;text-align:center;min-height:1.3em;color:rgba(255,255,255,.55);margin:8px 0 6px;}
+.br-mode-row{display:flex;gap:8px;margin-bottom:10px;}
+.br-mode-btn{flex:1;padding:10px 6px;border-radius:10px;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-weight:700;font-size:.82rem;cursor:pointer;transition:all .2s;text-align:center;}
+.br-mode-btn.active{border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,.1);}
+.br-bet-row{display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:10px;flex-wrap:wrap;}
+.br-bet-lbl{font-size:.8rem;color:rgba(255,255,255,.5);}
+.br-bet-input{width:80px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 8px;color:#fff;font-size:.9rem;text-align:center;outline:none;}
+.br-waiting{text-align:center;padding:20px 0;}
+.br-waiting-icon{font-size:3rem;animation:brSpin 1.5s linear infinite;display:inline-block;}
+@keyframes brSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.br-waiting-text{margin-top:10px;font-size:.9rem;color:rgba(255,255,255,.6);}
+.br-cancel-btn{margin-top:14px;padding:8px 20px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);font-size:.82rem;cursor:pointer;}
+
 </style>
 </head>
 <body>
@@ -177,6 +212,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 
 <!-- PVP -->
 <div id="sc-pvp" class="screen" style="display:none">
+  <div class="card" id="card-ballroll" onclick="brOpen()" style="cursor:pointer">
+    <div class="ch"><div class="ci">🎱</div><div><div class="ct">BALL ROLL</div><div class="cs">PvP дуель</div></div></div>
+    <div class="cd">Виклич реального гравця! Куля вирішить — хто переможе і забере ставку x2.</div>
+    <div class="cf"><div class="pill">ставка: від 10 монет</div><div class="pill pill-gr">PvP • x2</div></div>
+  </div>
+
   <div class="card" id="card-arena">
     <div class="ch"><div class="ci">⚔️</div><div><div class="ct">АРЕНА</div><div class="cs">бій 1v1</div></div></div>
     <div class="cd">Бій з суперником. Атаки, контратаки — переможець забирає ставку x2.</div>
@@ -915,6 +956,261 @@ document.getElementById('ton-submit').addEventListener('click', function(){
   toast('✅ Заявку відправлено!');
 });
 
+
+// ══════════════════════════════════════════════════════
+//  🎱  BALL ROLL  (Bot mode + PvP matchmaking via bot)
+// ══════════════════════════════════════════════════════
+var BRCanvas, BRCtx, BRTable;
+var BRMode = 'bot';  // 'bot' | 'pvp'
+var BRS = {
+  phase: 'idle',
+  ball: {x:.5, y:.5, vx:0, vy:0, r:.044, angle:0},
+  p1W: 0, p2W: 0,
+  trail: [], particles: [],
+  _target: null, _bet: 0,
+  rollTime: 0, totalDur: 0
+};
+var BR_RAF = null, BR_LAST = null;
+var BR_FRICTION = .984, BR_SLOW = .954, BR_BOUNCE = .52;
+var BR_PVP_WAITING = false;
+
+function brOpen(){
+  document.getElementById('ob-ballroll').textContent = '💰 ' + Math.floor(balance) + ' монет';
+  openOv('ballroll');
+  if(!BRCanvas) brInitCanvas();
+  brReset();
+}
+
+function brInitCanvas(){
+  BRCanvas = document.getElementById('br-canvas');
+  BRTable  = document.getElementById('br-table');
+  BRCtx    = BRCanvas.getContext('2d');
+  brResize();
+  window.addEventListener('resize', brResize);
+  (function loop(ts){
+    var dt = BR_LAST ? Math.min((ts - BR_LAST)/1000, .05) : .016;
+    BR_LAST = ts;
+    brUpdate(dt);
+    brDraw();
+    BR_RAF = requestAnimationFrame(loop);
+  })(0);
+}
+
+function brResize(){
+  if(!BRCanvas || !BRTable) return;
+  BRCanvas.width  = BRTable.clientWidth;
+  BRCanvas.height = BRTable.clientHeight;
+}
+
+function brSetMode(m){
+  BRMode = m;
+  document.getElementById('br-mode-bot').classList.toggle('active', m === 'bot');
+  document.getElementById('br-mode-pvp').classList.toggle('active', m === 'pvp');
+  document.getElementById('br-bot-controls').style.display  = m === 'bot' ? 'flex' : 'none';
+  document.getElementById('br-pvp-controls').style.display  = m === 'pvp' ? 'block' : 'none';
+  document.getElementById('br-pname2').textContent = m === 'pvp' ? 'Гравець' : 'Бот';
+  brReset();
+}
+
+function brReset(){
+  if(BRS.phase === 'rolling') return;
+  BRS.p1W = 0; BRS.p2W = 0;
+  document.getElementById('br-s1').textContent = '0';
+  document.getElementById('br-s2').textContent = '0';
+  document.getElementById('brp1').classList.remove('br-win');
+  document.getElementById('brp2').classList.remove('br-win');
+  document.getElementById('br-g1').classList.remove('active');
+  document.getElementById('br-g2').classList.remove('active');
+  BRS.phase = 'idle'; BRS.trail = []; BRS.particles = [];
+  document.getElementById('br-status').textContent = 'Вибери режим і натисни Roll!';
+  document.getElementById('br-status').style.color = '';
+  document.getElementById('br-roll-btn') && (document.getElementById('br-roll-btn').disabled = false);
+}
+
+// ── BOT MODE ────────────────────────────────────────
+function brRoll(){
+  if(BRS.phase !== 'idle') return;
+  var bet = parseInt(document.getElementById('br-bet').value) || 10;
+  if(bet < 10){ toast('❌ Мінімум 10 монет!'); return; }
+  if(bet > balance){ toast('❌ Недостатньо монет!'); return; }
+
+  setBal(balance - bet);
+  BRS._bet = bet;
+  BRS.phase = 'rolling';
+  BRS.winner = null;
+  BRS.trail = []; BRS.particles = [];
+  BRS._target = Math.random() < .5 ? 'p1' : 'p2';
+  BRS.totalDur = 3200 + Math.random() * 2000;
+  BRS.rollTime = 0;
+
+  var b = BRS.ball;
+  b.x = .5; b.y = .28 + Math.random() * .44;
+  var spd = .013 + Math.random() * .006;
+  b.vx = (BRS._target === 'p2' ? 1 : -1) * spd * (.7 + Math.random() * .3);
+  b.vy = (Math.random() - .5) * spd * .55;
+  b.angle = 0;
+
+  document.getElementById('br-roll-btn').disabled = true;
+  document.getElementById('br-status').textContent = '🎱 Rolling...';
+  document.getElementById('br-status').style.color = '#e8e8f0';
+  document.getElementById('brp1').classList.remove('br-win');
+  document.getElementById('brp2').classList.remove('br-win');
+  document.getElementById('br-g1').classList.remove('active');
+  document.getElementById('br-g2').classList.remove('active');
+}
+
+// ── PVP MODE ─────────────────────────────────────────
+function brPvpFind(){
+  var bet = parseInt(document.getElementById('br-bet').value) || 10;
+  if(bet < 10){ toast('❌ Мінімум 10 монет!'); return; }
+  if(bet > balance){ toast('❌ Недостатньо монет!'); return; }
+
+  BR_PVP_WAITING = true;
+  document.getElementById('br-pvp-controls').style.display = 'none';
+  document.getElementById('br-bet-row').style.display = 'none';
+  document.getElementById('br-mode-row').style.display = 'none';
+  document.getElementById('br-profiles').style.display = 'none';
+  document.getElementById('br-table').style.display = 'none';
+  document.getElementById('br-status').style.display = 'none';
+  document.getElementById('br-waiting').style.display = 'block';
+
+  // Send to bot — bot will matchmake and send result via push
+  send('pvp_find', { bet: bet });
+  setBal(balance - bet); // reserve bet locally (bot also deducts)
+}
+
+function brPvpCancel(){
+  BR_PVP_WAITING = false;
+  send('pvp_cancel', {});
+  setBal(balance + parseInt(document.getElementById('br-bet').value || 10)); // refund locally
+  brPvpReset();
+}
+
+function brPvpReset(){
+  document.getElementById('br-waiting').style.display = 'none';
+  document.getElementById('br-pvp-controls').style.display = 'block';
+  document.getElementById('br-bet-row').style.display = 'flex';
+  document.getElementById('br-mode-row').style.display = 'flex';
+  document.getElementById('br-profiles').style.display = 'flex';
+  document.getElementById('br-table').style.display = 'block';
+  document.getElementById('br-status').style.display = 'block';
+  document.getElementById('br-status').textContent = 'Виклик скасовано.';
+  document.getElementById('br-status').style.color = '';
+}
+
+// ── PHYSICS UPDATE ────────────────────────────────────
+function brUpdate(dt){
+  if(BRS.phase !== 'rolling') return;
+  var b = BRS.ball;
+  BRS.rollTime += dt * 1000;
+  var prog = BRS.rollTime / BRS.totalDur;
+  var fric = prog < .6 ? BR_FRICTION : BR_SLOW;
+  if(prog > .65){
+    var tx = BRS._target === 'p1' ? .07 : .93;
+    b.vx += (tx - b.x) * .00035;
+  }
+  b.vx *= fric; b.vy *= fric;
+  b.x += b.vx; b.y += b.vy;
+  b.angle += b.vx * 18 * dt;
+  var tb = .06;
+  if(b.y - b.r < tb){ b.y = tb + b.r; b.vy = Math.abs(b.vy) * BR_BOUNCE; }
+  if(b.y + b.r > 1-tb){ b.y = 1-tb-b.r; b.vy = -Math.abs(b.vy) * BR_BOUNCE; }
+  if(b.x - b.r < .03){ b.x = .03+b.r; b.vx = Math.abs(b.vx) * BR_BOUNCE; }
+  if(b.x + b.r > .97){ b.x = .97-b.r; b.vx = -Math.abs(b.vx) * BR_BOUNCE; }
+
+  BRS.trail.push({x: b.x, y: b.y});
+  if(BRS.trail.length > 26) BRS.trail.shift();
+
+  var spd = Math.sqrt(b.vx*b.vx + b.vy*b.vy);
+  if(spd > .005 && Math.random() < .25)
+    BRS.particles.push({x:b.x,y:b.y,vx:(Math.random()-.5)*.014,vy:(Math.random()-.5)*.014,life:1,size:.009+Math.random()*.011});
+  BRS.particles = BRS.particles.filter(function(p){ return p.life > 0; });
+  BRS.particles.forEach(function(p){ p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt*1.6; });
+
+  // Check goal
+  if((b.x < .09 || b.x > .91) && spd < .003){
+    BRS.phase = 'finished';
+    var w = b.x < .09 ? 'p1' : 'p2';
+    brFinish(w);
+  } else if(spd < .0007 && prog > .55){
+    b.vx += (BRS._target === 'p1' ? -.0015 : .0015);
+  }
+}
+
+// ── DRAW ──────────────────────────────────────────────
+function brDraw(){
+  if(!BRCtx || !BRCanvas) return;
+  var W = BRCanvas.width, H = BRCanvas.height;
+  BRCtx.clearRect(0,0,W,H);
+  var col = BRS._target === 'p1' ? '244,92,46' : '46,184,244';
+
+  BRS.trail.forEach(function(t,i){
+    var a = (i/BRS.trail.length)*.4;
+    var r = BRS.ball.r * Math.min(W,H) * (.35 + (i/BRS.trail.length)*.65);
+    BRCtx.beginPath(); BRCtx.arc(t.x*W, t.y*H, r, 0, Math.PI*2);
+    BRCtx.fillStyle = 'rgba('+col+','+a+')'; BRCtx.fill();
+  });
+
+  BRS.particles.forEach(function(p){
+    BRCtx.globalAlpha = p.life; BRCtx.beginPath();
+    BRCtx.arc(p.x*W, p.y*H, p.size*Math.min(W,H), 0, Math.PI*2);
+    BRCtx.fillStyle = BRS._target==='p1' ? '#f45c2e' : '#2eb8f4'; BRCtx.fill();
+  });
+  BRCtx.globalAlpha = 1;
+
+  var b=BRS.ball, bx=b.x*W, by=b.y*H, br=b.r*Math.min(W,H);
+
+  // Shadow
+  BRCtx.beginPath(); BRCtx.ellipse(bx, by+br*.42, br*.88, br*.32, 0, 0, Math.PI*2);
+  BRCtx.fillStyle='rgba(0,0,0,.4)'; BRCtx.fill();
+
+  // Ball body
+  var g = BRCtx.createRadialGradient(bx-br*.3, by-br*.3, br*.05, bx, by, br);
+  g.addColorStop(0,'#f5f5f5'); g.addColorStop(.35,'#ddd');
+  g.addColorStop(.75,'#bbb'); g.addColorStop(1,'#888');
+  BRCtx.beginPath(); BRCtx.arc(bx,by,br,0,Math.PI*2); BRCtx.fillStyle=g; BRCtx.fill();
+
+  // Stripe
+  BRCtx.save(); BRCtx.translate(bx,by); BRCtx.rotate(b.angle);
+  BRCtx.beginPath(); BRCtx.rect(-br,-br*.3,br*2,br*.6);
+  BRCtx.fillStyle = BRS._target==='p1' ? '#f45c2e':'#2eb8f4';
+  BRCtx.globalAlpha=.82; BRCtx.fill(); BRCtx.globalAlpha=1; BRCtx.restore();
+
+  // Shine
+  var sg = BRCtx.createRadialGradient(bx-br*.3,by-br*.38,br*.04,bx-br*.1,by-br*.1,br*.72);
+  sg.addColorStop(0,'rgba(255,255,255,.68)'); sg.addColorStop(.4,'rgba(255,255,255,.13)'); sg.addColorStop(1,'rgba(255,255,255,0)');
+  BRCtx.beginPath(); BRCtx.arc(bx,by,br,0,Math.PI*2); BRCtx.fillStyle=sg; BRCtx.fill();
+
+  // Outline
+  BRCtx.beginPath(); BRCtx.arc(bx,by,br,0,Math.PI*2);
+  BRCtx.strokeStyle='rgba(0,0,0,.3)'; BRCtx.lineWidth=1.5; BRCtx.stroke();
+}
+
+// ── FINISH ────────────────────────────────────────────
+function brFinish(winner){
+  var bet = BRS._bet;
+  var isP1 = winner === 'p1';
+  if(isP1){
+    BRS.p1W++;
+    document.getElementById('br-s1').textContent = BRS.p1W;
+    setBal(balance + bet * 2);
+    send('game_result', {game:'ballroll', won:true, balanceDelta: bet});
+    toast('🏆 Ти виграв! +' + bet + ' монет');
+  } else {
+    BRS.p2W++;
+    document.getElementById('br-s2').textContent = BRS.p2W;
+    send('game_result', {game:'ballroll', won:false, balanceDelta: 0});
+    toast('😔 ' + (BRMode==='pvp'?'Суперник':'Бот') + ' виграв...');
+  }
+  document.getElementById('br' + winner).classList.add('br-win');
+  document.getElementById('br-g' + (isP1?'1':'2')).classList.add('active');
+  var color = isP1 ? '#f45c2e' : '#2eb8f4';
+  document.getElementById('br-status').textContent = isP1 ? '🏆 ТИ ПЕРЕМІГ!' : '😔 ' + (BRMode==='pvp'?'Гравець':'Бот') + ' переміг!';
+  document.getElementById('br-status').style.color = color;
+  document.getElementById('ob-ballroll').textContent = '💰 ' + Math.floor(balance) + ' монет';
+  setTimeout(function(){ document.getElementById('br-roll-btn') && (document.getElementById('br-roll-btn').disabled = false); }, 1000);
+}
+
 </script>
 
 <!-- OVERLAY: TON CONVERSION -->
@@ -1006,6 +1302,74 @@ document.getElementById('ton-submit').addEventListener('click', function(){
         Ти отримаєш повідомлення в боті.
       </div>
       <button class="btn" id="ton-close-btn" style="background:linear-gradient(145deg,#0088cc,#00b4d8)">✅ Зрозуміло</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- OVERLAY: BALL ROLL PVP -->
+<div class="ov" id="ov-ballroll">
+  <div class="oh">
+    <button class="bk" onclick="closeOv('ballroll')">←</button>
+    <span class="ot">🎱 BALL ROLL</span>
+    <span class="ob" id="ob-ballroll"></span>
+  </div>
+  <div class="ob-body" style="padding:10px 14px">
+
+    <!-- Mode selector -->
+    <div class="br-mode-row" id="br-mode-row">
+      <div class="br-mode-btn active" id="br-mode-bot" onclick="brSetMode('bot')">🤖 vs Бот</div>
+      <div class="br-mode-btn" id="br-mode-pvp" onclick="brSetMode('pvp')">👥 vs Гравець</div>
+    </div>
+
+    <!-- Bet -->
+    <div class="br-bet-row" id="br-bet-row">
+      <span class="br-bet-lbl">Ставка:</span>
+      <input class="br-bet-input" id="br-bet" type="number" min="10" value="10" step="10">
+      <span class="br-bet-lbl">монет</span>
+    </div>
+
+    <!-- Profiles -->
+    <div class="br-profiles" id="br-profiles">
+      <div class="br-profile" id="brp1">
+        <span class="br-crown">👑</span>
+        <div class="br-score-n" id="br-s1">0</div>
+        <div class="br-pname" id="br-pname1">Ти</div>
+      </div>
+      <div class="br-vs-badge">VS</div>
+      <div class="br-profile" id="brp2">
+        <span class="br-crown">👑</span>
+        <div class="br-score-n" id="br-s2">0</div>
+        <div class="br-pname" id="br-pname2">Суперник</div>
+      </div>
+    </div>
+
+    <!-- Pool table -->
+    <div id="br-table">
+      <div class="br-goal" id="br-g1"></div>
+      <div class="br-goal" id="br-g2"></div>
+      <canvas id="br-canvas"></canvas>
+    </div>
+
+    <div id="br-status">Вибери режим і натисни Roll!</div>
+
+    <!-- Bot mode buttons -->
+    <div id="br-bot-controls" style="display:flex;gap:10px;margin-top:10px">
+      <button class="btn" id="br-roll-btn" onclick="brRoll()" style="flex:1;background:linear-gradient(135deg,#f45c2e,#ffd700);color:#000;border:none;font-weight:900">🎱 Roll Ball</button>
+      <button class="btn btn-secondary" onclick="brReset()" style="flex:0.4">↺</button>
+    </div>
+
+    <!-- PVP mode buttons -->
+    <div id="br-pvp-controls" style="display:none;margin-top:10px">
+      <button class="btn" id="br-pvp-btn" onclick="brPvpFind()" style="width:100%;background:linear-gradient(135deg,#2eb8f4,#7b2ff7);color:#fff;border:none;font-weight:900">👥 Знайти суперника</button>
+    </div>
+
+    <!-- Waiting state (pvp) -->
+    <div id="br-waiting" style="display:none" class="br-waiting">
+      <div class="br-waiting-icon">⏳</div>
+      <div class="br-waiting-text">Шукаємо суперника...<br><small style="color:rgba(255,255,255,.4)">Ставку зарезервовано</small></div>
+      <button class="br-cancel-btn" onclick="brPvpCancel()">❌ Скасувати</button>
     </div>
 
   </div>
